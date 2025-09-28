@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SehatSathi - Doctor Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Emergency Alert Banner -->
+    <div class="emergency-banner" id="emergencyBanner" style="display: none;">
+        <div class="emergency-content">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span class="emergency-text">CRITICAL: Emergency case requires immediate attention</span>
+            <button class="emergency-close" onclick="closeEmergency()">×</button>
+        </div>
+    </div>
+
+    <!-- Top Navigation Bar -->
+    <nav class="top-nav">
+        <div class="nav-left">
+            <div class="logo">
+                <i class="fas fa-user-md"></i>
+                <span>SehatSathi</span>
+            </div>
+            <div class="offline-indicator" id="offlineIndicator">
+                <i class="fas fa-wifi"></i>
+                <span>Online</span>
+            </div>
+        </div>
+        
+        <div class="nav-center">
+            <div class="language-selector">
+                <select id="languageSelect" onchange="changeLanguage()">
+                    <option value="en">English</option>
+                    <option value="hi">हिंदी</option>
+                    <option value="pa">ਪੰਜਾਬੀ</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="nav-right">
+            <div class="notification-bell" onclick="toggleNotifications()">
+                <i class="fas fa-bell"></i>
+                <span class="notification-count" id="notificationCount">3</span>
+            </div>
+            <div class="doctor-profile">
+                <div class="profile-avatar">
+                    <i class="fas fa-user-md"></i>
+                </div>
+                <div class="profile-info">
+                    <span class="doctor-name" data-translate="doctor_name">Dr. Rajesh Kumar</span>
+                    <span class="doctor-specialty" data-translate="general_practitioner">General Practitioner</span>
+                </div>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Notification Dropdown -->
+    <div class="notification-dropdown" id="notificationDropdown">
+        <div class="notification-header">
+            <h3 data-translate="notifications">Notifications</h3>
+            <button onclick="markAllRead()" data-translate="mark_all_read">Mark all read</button>
+        </div>
+        <div class="notification-list">
+            <div class="notification-item urgent">
+                <i class="fas fa-heartbeat"></i>
+                <div class="notification-content">
+                    <p data-translate="emergency_patient">Emergency patient request - High fever</p>
+                    <span class="notification-time">2 min ago</span>
+                </div>
+            </div>
+            <div class="notification-item">
+                <i class="fas fa-pills"></i>
+                <div class="notification-content">
+                    <p data-translate="low_stock_paracetamol">Low stock: Paracetamol (5 remaining)</p>
+                    <span class="notification-time">15 min ago</span>
+                </div>
+            </div>
+            <div class="notification-item">
+                <i class="fas fa-calendar-check"></i>
+                <div class="notification-content">
+                    <p data-translate="appointment_reminder">Appointment reminder: Patient John Doe at 2:00 PM</p>
+                    <span class="notification-time">1 hour ago</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <!-- Left Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-menu">
+                <div class="menu-item active" onclick="showSection('dashboard')">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span data-translate="dashboard">Dashboard</span>
+                </div>
+                <div class="menu-item" onclick="showSection('patient-queue')">
+                    <i class="fas fa-users"></i>
+                    <span data-translate="patient_queue">Patient Queue</span>
+                    <span class="queue-count">5</span>
+                </div>
+                <div class="menu-item" onclick="showSection('health-records')">
+                    <i class="fas fa-file-medical"></i>
+                    <span data-translate="digital_health_records">Digital Health Records</span>
+                </div>
+                <div class="menu-item" onclick="showSection('appointments')">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span data-translate="appointment_management">Appointment Management</span>
+                </div>
+                <div class="menu-item" onclick="showSection('medicine-shop')">
+                    <i class="fas fa-store"></i>
+                    <span data-translate="medicine_shop_finder">Medicine Shop Finder</span>
+                </div>
+                <div class="menu-item" onclick="showSection('analytics')">
+                    <i class="fas fa-chart-line"></i>
+                    <span data-translate="daily_analytics">Daily Analytics</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="content-section active">
+                <div class="section-header">
+                    <h1 data-translate="dashboard_overview">Dashboard Overview</h1>
+                    <div class="sync-status">
+                        <i class="fas fa-sync-alt" id="syncIcon"></i>
+                        <span data-translate="last_sync">Last sync: 2 min ago</span>
+                    </div>
+                </div>
+
+                <!-- Patient Queue Card -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3 data-translate="patient_queue">Patient Queue</h3>
+                        <span class="urgent-count">2 urgent</span>
+                    </div>
+                    <div class="patient-list">
+                        <div class="patient-item urgent">
+                            <div class="patient-info">
+                                <div class="patient-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="patient-details">
+                                    <h4>Priya Sharma</h4>
+                                    <p>High fever, headache - 38.5°C</p>
+                                    <span class="urgency-tag urgent">URGENT</span>
+                                </div>
+                            </div>
+                            <div class="patient-actions">
+                                <button class="btn-accept" onclick="acceptPatient('priya')">
+                                    <i class="fas fa-video"></i>
+                                    <span data-translate="join_consultation">Join Consultation</span>
+                                </button>
+                                <button class="btn-reject" onclick="rejectPatient('priya')">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="patient-item">
+                            <div class="patient-info">
+                                <div class="patient-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="patient-details">
+                                    <h4>Amit Singh</h4>
+                                    <p>Cough, cold symptoms</p>
+                                    <span class="urgency-tag normal">NORMAL</span>
+                                </div>
+                            </div>
+                            <div class="patient-actions">
+                                <button class="btn-accept" onclick="acceptPatient('amit')">
+                                    <i class="fas fa-video"></i>
+                                    <span data-translate="join_consultation">Join Consultation</span>
+                                </button>
+                                <button class="btn-reject" onclick="rejectPatient('amit')">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Consultation Card -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3 data-translate="active_consultation">Active Consultation</h3>
+                        <div class="call-controls">
+                            <button class="btn-mute" onclick="toggleMute()">
+                                <i class="fas fa-microphone"></i>
+                            </button>
+                            <button class="btn-video" onclick="toggleVideo()">
+                                <i class="fas fa-video"></i>
+                            </button>
+                            <button class="btn-end" onclick="endCall()">
+                                <i class="fas fa-phone-slash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="consultation-panel">
+                        <div class="video-container">
+                            <div class="video-placeholder">
+                                <i class="fas fa-video"></i>
+                                <p data-translate="video_call_placeholder">Video call will appear here</p>
+                            </div>
+                        </div>
+                        <div class="consultation-sidebar">
+                            <div class="chat-section">
+                                <h4 data-translate="live_chat">Live Chat</h4>
+                                <div class="chat-messages" id="chatMessages">
+                                    <div class="message patient">
+                                        <span>Hello Doctor, I have been having fever for 2 days</span>
+                                    </div>
+                                    <div class="message doctor">
+                                        <span>Hello, I can see your temperature is 38.5°C. Any other symptoms?</span>
+                                    </div>
+                                </div>
+                                <div class="chat-input">
+                                    <input type="text" placeholder="Type your message..." id="chatInput">
+                                    <button onclick="sendMessage()">
+                                        <i class="fas fa-paper-plane"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Prescription Generator Card -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3 data-translate="prescription_generator">Prescription Generator</h3>
+                    </div>
+                    <div class="prescription-form">
+                        <div class="form-group">
+                            <label data-translate="patient_name">Patient Name</label>
+                            <input type="text" id="patientName" placeholder="Enter patient name">
+                        </div>
+                        <div class="form-group">
+                            <label data-translate="medicines">Medicines</label>
+                            <div class="medicine-input">
+                                <input type="text" id="medicineInput" placeholder="Search medicines..." onkeyup="searchMedicines()">
+                                <div class="medicine-suggestions" id="medicineSuggestions"></div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label data-translate="dosage">Dosage</label>
+                            <input type="text" id="dosage" placeholder="e.g., 1 tablet twice daily">
+                        </div>
+                        <div class="form-actions">
+                            <button class="btn-generate" onclick="generatePrescription()">
+                                <i class="fas fa-qrcode"></i>
+                                <span data-translate="generate_prescription">Generate Prescription</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Next Appointment Scheduler -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3 data-translate="next_appointment">Next Appointment Scheduler</h3>
+                    </div>
+                    <div class="appointment-scheduler">
+                        <div class="form-group">
+                            <label data-translate="patient_name">Patient Name</label>
+                            <input type="text" id="appointmentPatient" placeholder="Enter patient name">
+                        </div>
+                        <div class="form-group">
+                            <label data-translate="date_time">Date & Time</label>
+                            <input type="datetime-local" id="appointmentDateTime">
+                        </div>
+                        <div class="form-group">
+                            <label data-translate="phone_number">Phone Number</label>
+                            <input type="tel" id="appointmentPhone" placeholder="Enter phone number">
+                        </div>
+                        <button class="btn-schedule" onclick="scheduleAppointment()">
+                            <i class="fas fa-calendar-plus"></i>
+                            <span data-translate="schedule_appointment">Schedule Appointment</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Patient Queue Section -->
+            <section id="patient-queue" class="content-section">
+                <div class="section-header">
+                    <h1 data-translate="patient_queue">Patient Queue</h1>
+                    <div class="queue-stats">
+                        <span class="total-patients">Total: <strong id="totalPatients">8</strong></span>
+                        <span class="waiting-time">Avg Wait: <strong>12 min</strong></span>
+                    </div>
+                </div>
+
+                <!-- Queue Filters -->
+                <div class="queue-filters">
+                    <div class="filter-group">
+                        <label data-translate="filter_by_urgency">Filter by Urgency:</label>
+                        <select id="urgencyFilter" onchange="filterByUrgency()">
+                            <option value="all" data-translate="all">All</option>
+                            <option value="critical" data-translate="critical">Critical</option>
+                            <option value="moderate" data-translate="moderate">Moderate</option>
+                            <option value="normal" data-translate="normal">Normal</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label data-translate="sort_by">Sort by:</label>
+                        <select id="sortFilter" onchange="sortQueue()">
+                            <option value="urgency" data-translate="urgency">Urgency</option>
+                            <option value="waiting" data-translate="waiting_time">Waiting Time</option>
+                            <option value="name" data-translate="patient_name">Patient Name</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Patient Queue Table -->
+                <div class="queue-table-container">
+                    <table class="queue-table">
+                        <thead>
+                            <tr>
+                                <th data-translate="queue_number">Queue #</th>
+                                <th data-translate="patient_info">Patient Info</th>
+                                <th data-translate="symptoms">Symptoms</th>
+                                <th data-translate="urgency">Urgency</th>
+                                <th data-translate="waiting_time">Waiting Time</th>
+                                <th data-translate="actions">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="queueTableBody">
+                            <tr class="patient-row critical">
+                                <td class="queue-number">1</td>
+                                <td class="patient-info">
+                                    <div class="patient-avatar-small">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <div class="patient-details">
+                                        <div class="patient-name">Priya Sharma</div>
+                                        <div class="patient-meta">ID: P001 | Age: 28 | Village: Rampur</div>
+                                    </div>
+                                </td>
+                                <td class="symptoms">
+                                    <div class="symptom-summary">High fever (39°C), severe headache, body aches</div>
+                                    <div class="symptom-duration">Since 2 hours</div>
+                                </td>
+                                <td class="urgency-cell">
+                                    <span class="urgency-badge critical">CRITICAL</span>
+                                </td>
+                                <td class="waiting-time">
+                                    <div class="time-elapsed">15 min</div>
+                                    <div class="time-remaining">Est: 5 min</div>
+                                </td>
+                                <td class="actions-cell">
+                                    <div class="action-buttons">
+                                        <button class="btn-accept-queue" onclick="acceptPatientQueue('P001')">
+                                            <i class="fas fa-video"></i>
+                                            <span data-translate="start_consultation">Start</span>
+                                        </button>
+                                        <button class="btn-reject-queue" onclick="rejectPatientQueue('P001')">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                        <button class="btn-call" onclick="callPatient('P001')">
+                                            <i class="fas fa-phone"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="patient-row moderate">
+                                <td class="queue-number">2</td>
+                                <td class="patient-info">
+                                    <div class="patient-avatar-small">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <div class="patient-details">
+                                        <div class="patient-name">Amit Singh</div>
+                                        <div class="patient-meta">ID: P002 | Age: 45 | Village: Devpur</div>
+                                    </div>
+                                </td>
+                                <td class="symptoms">
+                                    <div class="symptom-summary">Chest pain, shortness of breath</div>
+                                    <div class="symptom-duration">Since 1 hour</div>
+                                </td>
+                                <td class="urgency-cell">
+                                    <span class="urgency-badge moderate">MODERATE</span>
+                                </td>
+                                <td class="waiting-time">
+                                    <div class="time-elapsed">8 min</div>
+                                    <div class="time-remaining">Est: 12 min</div>
+                                </td>
+                                <td class="actions-cell">
+                                    <div class="action-buttons">
+                                        <button class="btn-accept-queue" onclick="acceptPatientQueue('P002')">
+                                            <i class="fas fa-video"></i>
+                                            <span data-translate="start_consultation">Start</span>
+                                        </button>
+                                        <button class="btn-reject-queue" onclick="rejectPatientQueue('P002')">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                        <button class="btn-call" onclick="callPatient('P002')">
+                                            <i class="fas fa-phone"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="patient-row normal">
+                                <td class="queue-number">3</td>
+                                <td class="patient-info">
+                                    <div class="patient-avatar-small">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <div class="patient-details">
+                                        <div class="patient-name">Sunita Devi</div>
+                                        <div class="patient-meta">ID: P003 | Age: 35 | Village: Khandwa</div>
+                                    </div>
+                                </td>
+                                <td class="symptoms">
+                                    <div class="symptom-summary">Cough, cold, mild fever</div>
+                                    <div class="symptom-duration">Since 1 day</div>
+                                </td>
+                                <td class="urgency-cell">
+                                    <span class="urgency-badge normal">NORMAL</span>
+                                </td>
+                                <td class="waiting-time">
+                                    <div class="time-elapsed">5 min</div>
+                                    <div class="time-remaining">Est: 15 min</div>
+                                </td>
+                                <td class="actions-cell">
+                                    <div class="action-buttons">
+                                        <button class="btn-accept-queue" onclick="acceptPatientQueue('P003')">
+                                            <i class="fas fa-video"></i>
+                                            <span data-translate="start_consultation">Start</span>
+                                        </button>
+                                        <button class="btn-reject-queue" onclick="rejectPatientQueue('P003')">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                        <button class="btn-call" onclick="callPatient('P003')">
+                                            <i class="fas fa-phone"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- New Patient Notification -->
+                <div class="new-patient-notification" id="newPatientNotification" style="display: none;">
+                    <div class="notification-content">
+                        <i class="fas fa-bell"></i>
+                        <span data-translate="new_patient_request">New patient request received!</span>
+                        <button class="btn-view" onclick="viewNewPatient()" data-translate="view_now">View Now</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Digital Health Records Section -->
+            <section id="health-records" class="content-section">
+                <div class="section-header">
+                    <h1 data-translate="digital_health_records">Digital Health Records</h1>
+                    <div class="sync-status">
+                        <i class="fas fa-sync-alt" id="dhrSyncIcon"></i>
+                        <span data-translate="last_sync">Last sync: 2 min ago</span>
+                    </div>
+                </div>
+
+                <!-- Search Bar -->
+                <div class="dhr-search-container">
+                    <div class="search-bar">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="patientSearch" placeholder="Search by patient name, ID, or Aadhaar..." onkeyup="searchPatients()">
+                        <button class="btn-search" onclick="searchPatients()" data-translate="search">Search</button>
+                    </div>
+                </div>
+
+                <!-- Patient Profile Card -->
+                <div class="patient-profile-card" id="patientProfileCard" style="display: none;">
+                    <div class="profile-header">
+                        <div class="patient-photo">
+                            <img src="https://via.placeholder.com/80" alt="Patient Photo" id="patientPhoto">
+                        </div>
+                        <div class="patient-basic-info">
+                            <h3 id="patientFullName">Priya Sharma</h3>
+                            <div class="patient-details">
+                                <span>ID: <strong id="patientID">P001</strong></span>
+                                <span>Age: <strong id="patientAge">28</strong></span>
+                                <span>Gender: <strong id="patientGender">Female</strong></span>
+                                <span>Village: <strong id="patientVillage">Rampur</strong></span>
+                            </div>
+                            <div class="last-visit">
+                                <i class="fas fa-calendar"></i>
+                                <span data-translate="last_visit">Last Visit:</span> <strong id="lastVisitDate">15 Dec 2024</strong>
+                            </div>
+                        </div>
+                        <div class="profile-actions">
+                            <button class="btn-upload" onclick="uploadRecord()">
+                                <i class="fas fa-upload"></i>
+                                <span data-translate="upload">Upload</span>
+                            </button>
+                            <button class="btn-download" onclick="downloadRecord()">
+                                <i class="fas fa-download"></i>
+                                <span data-translate="download">Download</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DHR Tabs -->
+                <div class="dhr-tabs" id="dhrTabs" style="display: none;">
+                    <div class="tab-navigation">
+                        <button class="tab-btn active" onclick="showDHRTab('history')" data-translate="history">History</button>
+                        <button class="tab-btn" onclick="showDHRTab('prescriptions')" data-translate="prescriptions">Prescriptions</button>
+                        <button class="tab-btn" onclick="showDHRTab('lab-reports')" data-translate="lab_reports">Lab Reports</button>
+                        <button class="tab-btn" onclick="showDHRTab('scans')" data-translate="scans">Scans</button>
+                    </div>
+
+                    <!-- History Tab -->
+                    <div class="tab-content active" id="historyTab">
+                        <div class="timeline-container">
+                            <div class="timeline-item">
+                                <div class="timeline-date">15 Dec 2024</div>
+                                <div class="timeline-content">
+                                    <div class="timeline-header">
+                                        <h4>Consultation - Dr. Rajesh Kumar</h4>
+                                        <span class="timeline-type">Video Call</span>
+                                    </div>
+                                    <div class="timeline-details">
+                                        <p><strong>Symptoms:</strong> High fever, headache</p>
+                                        <p><strong>Diagnosis:</strong> Viral fever</p>
+                                        <p><strong>Prescription:</strong> Paracetamol 500mg, 3 times daily</p>
+                                        <p><strong>Follow-up:</strong> 3 days</p>
+                                    </div>
+                                    <div class="timeline-actions">
+                                        <button class="btn-view-details" onclick="viewConsultationDetails('C001')">
+                                            <i class="fas fa-eye"></i>
+                                            <span data-translate="view_details">View Details</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-date">10 Dec 2024</div>
+                                <div class="timeline-content">
+                                    <div class="timeline-header">
+                                        <h4>Lab Test - Blood Work</h4>
+                                        <span class="timeline-type">Lab Report</span>
+                                    </div>
+                                    <div class="timeline-details">
+                                        <p><strong>Test:</strong> Complete Blood Count</p>
+                                        <p><strong>Results:</strong> Normal range</p>
+                                        <p><strong>Lab:</strong> Rampur Health Center</p>
+                                    </div>
+                                    <div class="timeline-actions">
+                                        <button class="btn-view-details" onclick="viewLabReport('L001')">
+                                            <i class="fas fa-file-pdf"></i>
+                                            <span data-translate="view_report">View Report</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Prescriptions Tab -->
+                    <div class="tab-content" id="prescriptionsTab">
+                        <div class="prescriptions-list">
+                            <div class="prescription-item">
+                                <div class="prescription-header">
+                                    <h4>Prescription #P001</h4>
+                                    <span class="prescription-date">15 Dec 2024</span>
+                                </div>
+                                <div class="prescription-medicines">
+                                    <div class="medicine-item">
+                                        <span class="medicine-name">Paracetamol</span>
+                                        <span class="medicine-dosage">500mg</span>
+                                        <span class="medicine-frequency">3 times daily</span>
+                                    </div>
+                                    <div class="medicine-item">
+                                        <span class="medicine-name">Cough Syrup</span>
+                                        <span class="medicine-dosage">5ml</span>
+                                        <span class="medicine-frequency">2 times daily</span>
+                                    </div>
+                                </div>
+                                <div class="prescription-actions">
+                                    <button class="btn-qr" onclick="viewPrescriptionQR('P001')">
+                                        <i class="fas fa-qrcode"></i>
+                                        <span data-translate="view_qr">View QR</span>
+                                    </button>
+                                    <button class="btn-print" onclick="printPrescription('P001')">
+                                        <i class="fas fa-print"></i>
+                                        <span data-translate="print">Print</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lab Reports Tab -->
+                    <div class="tab-content" id="labReportsTab">
+                        <div class="lab-reports-list">
+                            <div class="lab-report-item">
+                                <div class="report-header">
+                                    <h4>Complete Blood Count</h4>
+                                    <span class="report-date">10 Dec 2024</span>
+                                </div>
+                                <div class="report-details">
+                                    <div class="report-parameter">
+                                        <span class="parameter-name">Hemoglobin</span>
+                                        <span class="parameter-value normal">12.5 g/dL</span>
+                                    </div>
+                                    <div class="report-parameter">
+                                        <span class="parameter-name">WBC Count</span>
+                                        <span class="parameter-value normal">7,200 /μL</span>
+                                    </div>
+                                    <div class="report-parameter">
+                                        <span class="parameter-name">Platelet Count</span>
+                                        <span class="parameter-value normal">250,000 /μL</span>
+                                    </div>
+                                </div>
+                                <div class="report-actions">
+                                    <button class="btn-download" onclick="downloadLabReport('L001')">
+                                        <i class="fas fa-download"></i>
+                                        <span data-translate="download">Download</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Scans Tab -->
+                    <div class="tab-content" id="scansTab">
+                        <div class="scans-list">
+                            <div class="scan-item">
+                                <div class="scan-header">
+                                    <h4>Chest X-Ray</h4>
+                                    <span class="scan-date">05 Dec 2024</span>
+                                </div>
+                                <div class="scan-preview">
+                                    <div class="scan-placeholder">
+                                        <i class="fas fa-x-ray"></i>
+                                        <p data-translate="scan_preview">Scan Preview</p>
+                                    </div>
+                                </div>
+                                <div class="scan-actions">
+                                    <button class="btn-view" onclick="viewScan('S001')">
+                                        <i class="fas fa-eye"></i>
+                                        <span data-translate="view_scan">View Scan</span>
+                                    </button>
+                                    <button class="btn-download" onclick="downloadScan('S001')">
+                                        <i class="fas fa-download"></i>
+                                        <span data-translate="download">Download</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Offline Sync Indicator -->
+                <div class="offline-sync-indicator" id="offlineSyncIndicator" style="display: none;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span data-translate="offline_sync_warning">Some records are not yet synced. They will be uploaded when online.</span>
+                </div>
+            </section>
+
+            <!-- Appointment Management Section -->
+            <section id="appointments" class="content-section">
+                <div class="section-header">
+                    <h1 data-translate="appointment_management">Appointment Management</h1>
+                    <div class="appointment-stats">
+                        <span class="today-appointments">Today: <strong id="todayCount">5</strong></span>
+                        <span class="pending-appointments">Pending: <strong id="pendingCount">3</strong></span>
+                    </div>
+                </div>
+
+                <!-- Calendar and List View Toggle -->
+                <div class="view-toggle">
+                    <button class="toggle-btn active" onclick="toggleAppointmentView('calendar')" data-translate="calendar_view">Calendar View</button>
+                    <button class="toggle-btn" onclick="toggleAppointmentView('list')" data-translate="list_view">List View</button>
+                </div>
+
+                <!-- Calendar View -->
+                <div class="appointment-calendar" id="appointmentCalendar">
+                    <div class="calendar-header">
+                        <button class="btn-prev" onclick="changeMonth(-1)">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <h3 id="currentMonth">December 2024</h3>
+                        <button class="btn-next" onclick="changeMonth(1)">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                    <div class="calendar-grid" id="calendarGrid">
+                        <!-- Calendar days will be generated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- List View -->
+                <div class="appointment-list" id="appointmentList" style="display: none;">
+                    <div class="list-filters">
+                        <div class="filter-group">
+                            <label data-translate="filter_by_date">Filter by Date:</label>
+                            <select id="dateFilter" onchange="filterAppointments()">
+                                <option value="today" data-translate="today">Today</option>
+                                <option value="week" data-translate="this_week">This Week</option>
+                                <option value="month" data-translate="this_month">This Month</option>
+                                <option value="all" data-translate="all">All</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label data-translate="filter_by_status">Filter by Status:</label>
+                            <select id="statusFilter" onchange="filterAppointments()">
+                                <option value="all" data-translate="all">All</option>
+                                <option value="confirmed" data-translate="confirmed">Confirmed</option>
+                                <option value="pending" data-translate="pending">Pending</option>
+                                <option value="cancelled" data-translate="cancelled">Cancelled</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="appointments-table-container">
+                        <table class="appointments-table">
+                            <thead>
+                                <tr>
+                                    <th data-translate="date_time">Date & Time</th>
+                                    <th data-translate="patient_info">Patient Info</th>
+                                    <th data-translate="appointment_type">Type</th>
+                                    <th data-translate="status">Status</th>
+                                    <th data-translate="actions">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="appointmentsTableBody">
+                                <tr class="appointment-row">
+                                    <td class="appointment-datetime">
+                                        <div class="date">15 Dec 2024</div>
+                                        <div class="time">10:00 AM</div>
+                                    </td>
+                                    <td class="appointment-patient">
+                                        <div class="patient-name">Priya Sharma</div>
+                                        <div class="patient-contact">+91 98765 43210</div>
+                                        <div class="patient-village">Rampur</div>
+                                    </td>
+                                    <td class="appointment-type">
+                                        <span class="type-badge video">Video Call</span>
+                                    </td>
+                                    <td class="appointment-status">
+                                        <span class="status-badge confirmed">Confirmed</span>
+                                    </td>
+                                    <td class="appointment-actions">
+                                        <div class="action-buttons">
+                                            <button class="btn-reschedule" onclick="rescheduleAppointment('A001')">
+                                                <i class="fas fa-calendar-alt"></i>
+                                                <span data-translate="reschedule">Reschedule</span>
+                                            </button>
+                                            <button class="btn-cancel" onclick="cancelAppointment('A001')">
+                                                <i class="fas fa-times"></i>
+                                                <span data-translate="cancel">Cancel</span>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr class="appointment-row">
+                                    <td class="appointment-datetime">
+                                        <div class="date">15 Dec 2024</div>
+                                        <div class="time">2:00 PM</div>
+                                    </td>
+                                    <td class="appointment-patient">
+                                        <div class="patient-name">Amit Singh</div>
+                                        <div class="patient-contact">+91 98765 43211</div>
+                                        <div class="patient-village">Devpur</div>
+                                    </td>
+                                    <td class="appointment-type">
+                                        <span class="type-badge audio">Audio Call</span>
+                                    </td>
+                                    <td class="appointment-status">
+                                        <span class="status-badge pending">Pending</span>
+                                    </td>
+                                    <td class="appointment-actions">
+                                        <div class="action-buttons">
+                                            <button class="btn-confirm" onclick="confirmAppointment('A002')">
+                                                <i class="fas fa-check"></i>
+                                                <span data-translate="confirm">Confirm</span>
+                                            </button>
+                                            <button class="btn-reschedule" onclick="rescheduleAppointment('A002')">
+                                                <i class="fas fa-calendar-alt"></i>
+                                                <span data-translate="reschedule">Reschedule</span>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- AI Scheduling Suggestion -->
+                <div class="ai-scheduling-suggestion">
+                    <div class="suggestion-header">
+                        <i class="fas fa-robot"></i>
+                        <h4 data-translate="ai_scheduling_suggestion">AI Scheduling Suggestion</h4>
+                    </div>
+                    <div class="suggestion-content">
+                        <p data-translate="ai_suggestion_text">Based on your schedule, we suggest scheduling the next appointment at 3:30 PM today. This will provide adequate time between consultations.</p>
+                        <div class="suggestion-actions">
+                            <button class="btn-accept-suggestion" onclick="acceptAISuggestion()">
+                                <i class="fas fa-check"></i>
+                                <span data-translate="accept_suggestion">Accept Suggestion</span>
+                            </button>
+                            <button class="btn-dismiss-suggestion" onclick="dismissAISuggestion()">
+                                <i class="fas fa-times"></i>
+                                <span data-translate="dismiss">Dismiss</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SMS Notification Status -->
+                <div class="sms-notification-status">
+                    <div class="status-header">
+                        <i class="fas fa-sms"></i>
+                        <h4 data-translate="sms_notifications">SMS Notifications</h4>
+                    </div>
+                    <div class="status-content">
+                        <div class="notification-item">
+                            <span class="notification-type">Appointment Confirmation</span>
+                            <span class="notification-status sent">Sent</span>
+                            <span class="notification-time">2 min ago</span>
+                        </div>
+                        <div class="notification-item">
+                            <span class="notification-type">Reminder (24h)</span>
+                            <span class="notification-status pending">Pending</span>
+                            <span class="notification-time">Scheduled</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Offline Indicator -->
+                <div class="offline-appointment-indicator" id="offlineAppointmentIndicator" style="display: none;">
+                    <i class="fas fa-wifi-slash"></i>
+                    <span data-translate="offline_appointment_warning">Appointments are saved locally. They will be synced when online.</span>
+                </div>
+            </section>
+
+            <!-- Medicine Shop Finder Section -->
+            <section id="medicine-shop" class="content-section">
+                <div class="section-header">
+                    <h1 data-translate="medicine_shop_finder">Medicine Shop Finder</h1>
+                    <div class="shop-stats">
+                        <span class="nearby-shops">Nearby: <strong id="nearbyShops">5</strong></span>
+                        <span class="last-updated">Updated: <strong id="lastStockUpdate">2 min ago</strong></span>
+                    </div>
+                </div>
+
+                <!-- Medicine Search -->
+                <div class="medicine-search-container">
+                    <div class="search-bar">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="medicineSearch" placeholder="Search for medicines (e.g., Paracetamol, Amoxicillin)..." onkeyup="searchMedicines()">
+                        <button class="btn-search" onclick="searchMedicines()" data-translate="search">Search</button>
+                    </div>
+                </div>
+
+                <!-- Medicine Results -->
+                <div class="medicine-results" id="medicineResults">
+                    <div class="medicine-item">
+                        <div class="medicine-info">
+                            <h3>Paracetamol 500mg</h3>
+                            <p class="medicine-description">Pain relief and fever reducer</p>
+                        </div>
+                        <div class="stock-status">
+                            <span class="stock-indicator low">Low Stock</span>
+                            <span class="stock-count">5 remaining</span>
+                        </div>
+                    </div>
+                    <div class="medicine-item">
+                        <div class="medicine-info">
+                            <h3>Amoxicillin 250mg</h3>
+                            <p class="medicine-description">Antibiotic for bacterial infections</p>
+                        </div>
+                        <div class="stock-status">
+                            <span class="stock-indicator good">In Stock</span>
+                            <span class="stock-count">25 remaining</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Nearby Pharmacies -->
+                <div class="pharmacies-container">
+                    <h3 data-translate="nearby_pharmacies">Nearby Pharmacies</h3>
+                    <div class="pharmacies-list">
+                        <div class="pharmacy-item">
+                            <div class="pharmacy-header">
+                                <div class="pharmacy-info">
+                                    <h4>Rampur Medical Store</h4>
+                                    <div class="pharmacy-details">
+                                        <span class="distance">2.5 km from hospital</span>
+                                        <span class="village">Rampur Village</span>
+                                    </div>
+                                </div>
+                                <div class="pharmacy-status">
+                                    <span class="status-badge open">Open</span>
+                                    <span class="contact">+91 98765 43210</span>
+                                </div>
+                            </div>
+                            <div class="pharmacy-stock">
+                                <div class="stock-item">
+                                    <span class="medicine-name">Paracetamol</span>
+                                    <span class="stock-status low">5 left</span>
+                                </div>
+                                <div class="stock-item">
+                                    <span class="medicine-name">Amoxicillin</span>
+                                    <span class="stock-status good">25 left</span>
+                                </div>
+                                <div class="stock-item">
+                                    <span class="medicine-name">Cough Syrup</span>
+                                    <span class="stock-status out">Out of stock</span>
+                                </div>
+                            </div>
+                            <div class="pharmacy-actions">
+                                <button class="btn-allocate" onclick="allocatePharmacy('P001')">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <span data-translate="allocate_to_patient">Allocate to Patient</span>
+                                </button>
+                                <button class="btn-call" onclick="callPharmacy('P001')">
+                                    <i class="fas fa-phone"></i>
+                                    <span data-translate="call_pharmacy">Call</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="pharmacy-item">
+                            <div class="pharmacy-header">
+                                <div class="pharmacy-info">
+                                    <h4>Devpur Health Center</h4>
+                                    <div class="pharmacy-details">
+                                        <span class="distance">4.2 km from hospital</span>
+                                        <span class="village">Devpur Village</span>
+                                    </div>
+                                </div>
+                                <div class="pharmacy-status">
+                                    <span class="status-badge open">Open</span>
+                                    <span class="contact">+91 98765 43211</span>
+                                </div>
+                            </div>
+                            <div class="pharmacy-stock">
+                                <div class="stock-item">
+                                    <span class="medicine-name">Paracetamol</span>
+                                    <span class="stock-status good">15 left</span>
+                                </div>
+                                <div class="stock-item">
+                                    <span class="medicine-name">Cough Syrup</span>
+                                    <span class="stock-status good">8 left</span>
+                                </div>
+                                <div class="stock-item">
+                                    <span class="medicine-name">Antibiotics</span>
+                                    <span class="stock-status low">3 left</span>
+                                </div>
+                            </div>
+                            <div class="pharmacy-actions">
+                                <button class="btn-allocate" onclick="allocatePharmacy('P002')">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <span data-translate="allocate_to_patient">Allocate to Patient</span>
+                                </button>
+                                <button class="btn-call" onclick="callPharmacy('P002')">
+                                    <i class="fas fa-phone"></i>
+                                    <span data-translate="call_pharmacy">Call</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="pharmacy-item">
+                            <div class="pharmacy-header">
+                                <div class="pharmacy-info">
+                                    <h4>Khandwa Medical</h4>
+                                    <div class="pharmacy-details">
+                                        <span class="distance">6.8 km from hospital</span>
+                                        <span class="village">Khandwa Village</span>
+                                    </div>
+                                </div>
+                                <div class="pharmacy-status">
+                                    <span class="status-badge closed">Closed</span>
+                                    <span class="contact">+91 98765 43212</span>
+                                </div>
+                            </div>
+                            <div class="pharmacy-stock">
+                                <div class="stock-item">
+                                    <span class="medicine-name">Paracetamol</span>
+                                    <span class="stock-status good">20 left</span>
+                                </div>
+                                <div class="stock-item">
+                                    <span class="medicine-name">Amoxicillin</span>
+                                    <span class="stock-status good">12 left</span>
+                                </div>
+                                <div class="stock-item">
+                                    <span class="medicine-name">Cough Syrup</span>
+                                    <span class="stock-status good">10 left</span>
+                                </div>
+                            </div>
+                            <div class="pharmacy-actions">
+                                <button class="btn-allocate" onclick="allocatePharmacy('P003')" disabled>
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <span data-translate="allocate_to_patient">Allocate to Patient</span>
+                                </button>
+                                <button class="btn-call" onclick="callPharmacy('P003')">
+                                    <i class="fas fa-phone"></i>
+                                    <span data-translate="call_pharmacy">Call</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Offline Mode Indicator -->
+                <div class="offline-medicine-indicator" id="offlineMedicineIndicator" style="display: none;">
+                    <i class="fas fa-wifi-slash"></i>
+                    <span data-translate="offline_medicine_warning">Showing cached stock data. Last updated: 2 hours ago</span>
+                </div>
+            </section>
+
+            <!-- Daily Analytics Section -->
+            <section id="analytics" class="content-section">
+                <div class="section-header">
+                    <h1 data-translate="daily_analytics">Daily Analytics</h1>
+                    <div class="analytics-actions">
+                        <button class="btn-export" onclick="exportAnalytics()">
+                            <i class="fas fa-download"></i>
+                            <span data-translate="export_data">Export Data</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Key Metrics Cards -->
+                <div class="analytics-cards">
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3 data-translate="total_patients_today">Total Patients Today</h3>
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="metric-value">24</div>
+                        <div class="metric-change positive">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>+12% from yesterday</span>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3 data-translate="consultations_completed">Consultations Completed</h3>
+                            <i class="fas fa-video"></i>
+                        </div>
+                        <div class="metric-value">18</div>
+                        <div class="metric-change positive">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>+8% from yesterday</span>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3 data-translate="prescriptions_generated">Prescriptions Generated</h3>
+                            <i class="fas fa-prescription"></i>
+                        </div>
+                        <div class="metric-value">22</div>
+                        <div class="metric-change neutral">
+                            <i class="fas fa-minus"></i>
+                            <span>Same as yesterday</span>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3 data-translate="follow_ups_scheduled">Follow-ups Scheduled</h3>
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <div class="metric-value">6</div>
+                        <div class="metric-change positive">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>+20% from yesterday</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Section -->
+                <div class="charts-container">
+                    <!-- Patient Trend Chart -->
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 data-translate="patient_trend_7_days">Patient Trend (Last 7 Days)</h3>
+                            <div class="chart-controls">
+                                <button class="chart-btn active" onclick="changeChartPeriod('7days')" data-translate="7_days">7 Days</button>
+                                <button class="chart-btn" onclick="changeChartPeriod('30days')" data-translate="30_days">30 Days</button>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <div class="line-chart-placeholder">
+                                <div class="chart-bars">
+                                    <div class="bar" style="height: 60%;" data-value="15"></div>
+                                    <div class="bar" style="height: 80%;" data-value="20"></div>
+                                    <div class="bar" style="height: 70%;" data-value="18"></div>
+                                    <div class="bar" style="height: 90%;" data-value="22"></div>
+                                    <div class="bar" style="height: 85%;" data-value="21"></div>
+                                    <div class="bar" style="height: 95%;" data-value="24"></div>
+                                    <div class="bar" style="height: 100%;" data-value="24"></div>
+                                </div>
+                                <div class="chart-labels">
+                                    <span>Mon</span>
+                                    <span>Tue</span>
+                                    <span>Wed</span>
+                                    <span>Thu</span>
+                                    <span>Fri</span>
+                                    <span>Sat</span>
+                                    <span>Sun</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Common Symptoms Chart -->
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 data-translate="common_symptoms_today">Common Symptoms Today</h3>
+                        </div>
+                        <div class="chart-container">
+                            <div class="pie-chart-placeholder">
+                                <div class="pie-slice" style="--percentage: 35%; --color: #3b82f6;" data-label="Fever" data-value="35%"></div>
+                                <div class="pie-slice" style="--percentage: 25%; --color: #10b981;" data-label="Cough" data-value="25%"></div>
+                                <div class="pie-slice" style="--percentage: 20%; --color: #f59e0b;" data-label="Headache" data-value="20%"></div>
+                                <div class="pie-slice" style="--percentage: 15%; --color: #ef4444;" data-label="Chest Pain" data-value="15%"></div>
+                                <div class="pie-slice" style="--percentage: 5%; --color: #8b5cf6;" data-label="Other" data-value="5%"></div>
+                            </div>
+                            <div class="pie-legend">
+                                <div class="legend-item">
+                                    <span class="legend-color" style="background: #3b82f6;"></span>
+                                    <span class="legend-label">Fever (35%)</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color" style="background: #10b981;"></span>
+                                    <span class="legend-label">Cough (25%)</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color" style="background: #f59e0b;"></span>
+                                    <span class="legend-label">Headache (20%)</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color" style="background: #ef4444;"></span>
+                                    <span class="legend-label">Chest Pain (15%)</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color" style="background: #8b5cf6;"></span>
+                                    <span class="legend-label">Other (5%)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top Medicines Prescribed -->
+                <div class="top-medicines-card">
+                    <div class="card-header">
+                        <h3 data-translate="top_medicines_prescribed">Top Medicines Prescribed Today</h3>
+                    </div>
+                    <div class="medicines-list">
+                        <div class="medicine-ranking">
+                            <div class="rank">1</div>
+                            <div class="medicine-info">
+                                <span class="medicine-name">Paracetamol 500mg</span>
+                                <span class="medicine-count">8 prescriptions</span>
+                            </div>
+                            <div class="medicine-percentage">33%</div>
+                        </div>
+                        <div class="medicine-ranking">
+                            <div class="rank">2</div>
+                            <div class="medicine-info">
+                                <span class="medicine-name">Amoxicillin 250mg</span>
+                                <span class="medicine-count">5 prescriptions</span>
+                            </div>
+                            <div class="medicine-percentage">21%</div>
+                        </div>
+                        <div class="medicine-ranking">
+                            <div class="rank">3</div>
+                            <div class="medicine-info">
+                                <span class="medicine-name">Cough Syrup</span>
+                                <span class="medicine-count">4 prescriptions</span>
+                            </div>
+                            <div class="medicine-percentage">17%</div>
+                        </div>
+                        <div class="medicine-ranking">
+                            <div class="rank">4</div>
+                            <div class="medicine-info">
+                                <span class="medicine-name">Cetirizine 10mg</span>
+                                <span class="medicine-count">3 prescriptions</span>
+                            </div>
+                            <div class="medicine-percentage">13%</div>
+                        </div>
+                        <div class="medicine-ranking">
+                            <div class="rank">5</div>
+                            <div class="medicine-info">
+                                <span class="medicine-name">Omeprazole 20mg</span>
+                                <span class="medicine-count">2 prescriptions</span>
+                            </div>
+                            <div class="medicine-percentage">8%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Follow-up Appointments -->
+                <div class="follow-ups-card">
+                    <div class="card-header">
+                        <h3 data-translate="follow_up_appointments">Follow-up Appointments Scheduled</h3>
+                    </div>
+                    <div class="follow-ups-list">
+                        <div class="follow-up-item">
+                            <div class="follow-up-date">Tomorrow</div>
+                            <div class="follow-up-details">
+                                <span class="patient-name">Priya Sharma</span>
+                                <span class="follow-up-reason">Fever follow-up</span>
+                            </div>
+                            <div class="follow-up-time">10:00 AM</div>
+                        </div>
+                        <div class="follow-up-item">
+                            <div class="follow-up-date">Dec 17</div>
+                            <div class="follow-up-details">
+                                <span class="patient-name">Amit Singh</span>
+                                <span class="follow-up-reason">Chest pain review</span>
+                            </div>
+                            <div class="follow-up-time">2:00 PM</div>
+                        </div>
+                        <div class="follow-up-item">
+                            <div class="follow-up-date">Dec 18</div>
+                            <div class="follow-up-details">
+                                <span class="patient-name">Sunita Devi</span>
+                                <span class="follow-up-reason">Cough treatment</span>
+                            </div>
+                            <div class="follow-up-time">11:00 AM</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+    </div>
+
+    <!-- QR Code Modal -->
+    <div class="modal" id="qrModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 data-translate="prescription_qr_code">Prescription QR Code</h3>
+                <button class="modal-close" onclick="closeQRModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="qr-code-container">
+                    <div class="qr-code-placeholder">
+                        <i class="fas fa-qrcode"></i>
+                        <p data-translate="qr_code_will_appear_here">QR Code will appear here</p>
+                    </div>
+                </div>
+                <div class="prescription-details">
+                    <h4>Prescription Details</h4>
+                    <p><strong>Patient:</strong> <span id="qrPatientName">-</span></p>
+                    <p><strong>Medicines:</strong> <span id="qrMedicines">-</span></p>
+                    <p><strong>Dosage:</strong> <span id="qrDosage">-</span></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-print" onclick="printPrescription()">
+                    <i class="fas fa-print"></i>
+                    <span data-translate="print_prescription">Print Prescription</span>
+                </button>
+                <button class="btn-download" onclick="downloadQR()">
+                    <i class="fas fa-download"></i>
+                    <span data-translate="download_qr">Download QR</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
